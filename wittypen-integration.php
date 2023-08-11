@@ -42,7 +42,7 @@ function wittypen_script()
     echo <<<EOT
     <script>
         function copyApiKey() {
-            var apiKey = document.getElementById('wittypen-api-key').value;
+            var apiKey = document.getElementById('wittypen-api-key').innerHTML;
             navigator.clipboard.writeText(apiKey);
 
             document.querySelector('#wittypen-api-key-copy-success-msg').classList.remove('hidden');
