@@ -45,10 +45,10 @@ function wittypen_script()
             var apiKey = document.getElementById('wittypen-api-key').value;
             navigator.clipboard.writeText(apiKey);
 
-            document.querySelector('#wittypen-container .card #copy-success-message').innerHTML = 'API key copied!';
+            document.querySelector('#wittypen-api-key-copy-success-msg').classList.remove('hidden');
 
             setTimeout(() => {
-                document.querySelector('#wittypen-container .card #copy-success-message').innerHTML = '';
+                document.querySelector('#wittypen-api-key-copy-success-msg').classList.add('hidden');
             }, 3000);
         }
     </script>
@@ -70,12 +70,12 @@ function wittypen_display_api_key()
     <div class="space-y-2 rounded-lg border bg-white p-4 shadow-lg">
         <p class="inline-block font-bold">API Key</p>
         <div class="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 p-4">
-        <p>$api_key</p>
+        <p id="wittypen-api-key">$api_key</p>
         <span class="cursor-pointer hover:opacity-50" onclick="copyApiKey()">
             <svg class="w-4 fill-gray-500" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 115.77 122.88"><path d="M89.62 13.96v7.73h12.2v.02c3.85.01 7.34 1.57 9.86 4.1 2.5 2.51 4.06 5.98 4.07 9.82h.02v73.3h-.02c-.01 3.84-1.57 7.33-4.1 9.86-2.51 2.5-5.98 4.06-9.82 4.07v.02H40.1v-.02c-3.84-.01-7.34-1.57-9.86-4.1-2.5-2.51-4.06-5.98-4.07-9.82h-.02V92.51h-12.2v-.02c-3.84-.01-7.34-1.57-9.86-4.1-2.5-2.51-4.06-5.98-4.07-9.82H0V13.95h.02c.01-3.85 1.58-7.34 4.1-9.86C6.63 1.59 10.1.03 13.94.02V0H75.67v.02c3.85.01 7.34 1.57 9.86 4.1 2.5 2.51 4.06 5.98 4.07 9.82h.02v.02zm-10.58 7.73v-7.75h.02c0-.91-.39-1.75-1.01-2.37-.61-.61-1.46-1-2.37-1v.02H13.95v-.02c-.91 0-1.75.39-2.37 1.01-.61.61-1 1.46-1 2.37h.02v64.62h-.02c0 .91.39 1.75 1.01 2.37.61.61 1.46 1 2.37 1v-.02h12.2V35.64h.02c.01-3.85 1.58-7.34 4.1-9.86 2.51-2.5 5.98-4.06 9.82-4.07v-.02H79.04zm26.14 87.23V35.63h.02c0-.91-.39-1.75-1.01-2.37-.61-.61-1.46-1-2.37-1v.02H40.09v-.02c-.91 0-1.75.39-2.37 1.01-.61.61-1 1.46-1 2.37h.02v73.3h-.02c0 .91.39 1.75 1.01 2.37.61.61 1.46 1 2.37 1v-.02H101.83v.02c.91 0 1.75-.39 2.37-1.01.61-.61 1-1.46 1-2.37h-.02v-.01z" style="fill-rule:evenodd;clip-rule:evenodd" /></svg
         ></span>
         </div>
-        <p class="hidden text-green-600"></p>
+        <p id="wittypen-api-key-copy-success-msg" class="hidden text-green-600">API key copied</p>
     </div>
     <div class="space-y-1 rounded-lg border border-yellow-400 bg-yellow-50 p-4 text-yellow-800">
         <p class="font-bold">Important: Keep this plugin installed and activated</p>
