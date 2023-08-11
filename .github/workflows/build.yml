@@ -28,6 +28,7 @@ jobs:
           release_name: Release ${{ github.ref }}
           draft: false
           prerelease: false
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload Release Asset
         id: upload-release-asset
@@ -37,3 +38,4 @@ jobs:
           asset_path: build/wittypen-wordpress-plugin.zip
           asset_name: wittypen-wordpress-plugin.zip
           asset_content_type: application/zip
+          token: ${{ secrets.GITHUB_TOKEN }}
