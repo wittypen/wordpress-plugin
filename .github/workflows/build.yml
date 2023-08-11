@@ -20,14 +20,17 @@ jobs:
       - name: Build ZIP
         run: zip -r build/wittypen-wordpress-plugin.zip . -x "*.git*"
 
+      - name: Get the branch name
+        run: echo "BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/})" >> $GITHUB_ENV
+
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
+          tag_name: ${{ env.BRANCH_NAME }}-${{ github.run_number }}
+          release_name: Release ${{ env.BRANCH_NAME }}-${{ github.run_number }}
           draft: false
           prerelease: false
 
