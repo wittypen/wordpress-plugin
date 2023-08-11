@@ -1,10 +1,18 @@
 <?php
 /*
-Plugin Name: Wittypen Integration
-Description: Generates an API key for connecting your WordPress website with Wittypen.
-Version: 1.0
-Author: Wittypen
-*/
+ * Plugin Name:       Wittypen
+ * Plugin URI:        https://wittypen.com/integrations/wordpress
+ * Description:       1-click publishing from Wittypen to WordPress
+ * Version:           1.0.0
+ * Requires at least: 4.8
+ * Requires PHP:      5.6
+ * Author:            Wittypen Team
+ * Author URI:        https://wittypen.com
+ * License:           GPL v2 or later
+ * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
+ * Update URI:        https://wittypen.com/integrations/wordpress
+ * Text Domain:       wittypen
+ */
 
 register_activation_hook(__FILE__, 'wittypen_generate_api_key');
 
@@ -19,14 +27,63 @@ add_action('admin_menu', 'wittypen_create_menu');
 
 function wittypen_create_menu()
 {
-    add_menu_page('Wittypen API Key', 'Wittypen API Key', 'manage_options', 'wittypen-api-key', 'wittypen_display_api_key');
+    add_menu_page(
+        'Wittypen',
+        'Wittypen',
+        'manage_options',
+        'wittypen',
+        'wittypen_display_api_key',
+        'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAwIiBoZWlnaHQ9IjUwOCIgdmlld0JveD0iMCAwIDUwMCA1MDgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik00NC44MTY1IDIzNC4zQzMxLjI1MjQgMjMwLjA5OSAzLjgwMTI1IDIzOS40NzEgMC4yNDg3NDcgMjEwLjA2M0MtMi4zMzQ4OSAxODkuNzAzIDE1Ljc1MDYgMTkwLjAyNyAyOS4zMTQ3IDE5MS42NDNDNDcuNzIzMSAxOTMuNTgyIDcyLjI2NzggMTg5LjA1NyA3Ny4xMTE5IDIxNC4yNjRDODAuNjY0NyAyMzEuNzE1IDY1LjQ4NTYgMjM2LjU2MiA0NC44MTY1IDIzNC4zWiIgZmlsbD0iYmxhY2siLz4KPHBhdGggZD0iTTI3My4xNDYgMzkuMTE2QzI3MC41NjIgNTQuOTUxIDI3NC4xMTUgNzUuOTU2NCAyNTAuNTM5IDc2LjYwMjdDMjIzLjQxMSA3Ny4yNDg5IDIyNy42MSA1NC42Mjc4IDIyNy42MSAzNy41MDAyQzIyNy45MzIgMjEuNjY1MiAyMjQuNzAzIDAuMzM2NTIgMjQ4LjYwMSAwLjAxMzM1ODFDMjc1LjQwNyAtMC42MzI5NjcgMjcwLjg4NSAyMi4zMTE2IDI3My4xNDYgMzkuMTE2WiIgZmlsbD0iYmxhY2siLz4KPHBhdGggZD0iTTE0NC45MyA5OC4yNDU3QzE0NC42MDcgMTEyLjc4OCAxMzcuODI1IDEyNC40MjIgMTI2LjE5OSAxMjIuNDgzQzEwMS4wMDggMTE3Ljk1OCA4Ny43NjczIDk3LjI3NiA4MC4wMTY2IDc0Ljk3NzdDNzUuODE4MiA2My4wMjA5IDg2LjE1MjYgNTAuNzQwOCA5Ny43Nzg5IDUyLjY3OTdDMTIyLjk3IDU3LjIwNCAxMzMuNjI3IDc5LjUwMjMgMTQ0LjkzIDk4LjI0NTdaIiBmaWxsPSJibGFjayIvPgo8cGF0aCBkPSJNNDU0LjY0MSAyMzQuOTVDNDM0LjI5NCAyMzYuODg5IDQxOC4xNDcgMjMzLjAxMSA0MjEuNyAyMTQuOTE0QzQyNi4yMjEgMTkwLjAzIDQ1MC43NjUgMTkzLjU4NSA0NjkuNDk3IDE5MS4zMjNDNDg0LjAyOSAxODkuNzA3IDUwMS43OTIgMTkwLjk5OSA0OTkuODU0IDIwOS43NDNDNDk2LjMwMiAyMzkuNDc0IDQ2OC4yMDUgMjI5Ljc3OSA0NTQuNjQxIDIzNC45NVoiIGZpbGw9ImJsYWNrIi8+CjxwYXRoIGQ9Ik00MTkuNzYyIDc2LjkyNUM0MTAuMDczIDk1LjY2ODQgMzk5LjQxNiAxMTcuOTY3IDM3My45MDMgMTIyLjQ5MUMzNjIuMjc2IDEyNC40MyAzNTIuMjY1IDExMi40NzMgMzU1LjgxNyAxMDAuMTkyQzM2Mi41OTkgNzguNTQwNCAzNzYuNDg2IDU5Ljc5NzIgMzk5LjA5MyA1My4zMzRDNDExLjA0MyA0OS43NzkyIDQxOC43OTMgNjAuNzY2NyA0MTkuNzYyIDc2LjkyNVoiIGZpbGw9ImJsYWNrIi8+CjxwYXRoIGQ9Ik0zMzkuNjc2IDE0OS4zMjFDMzM2LjQ0NyAxNDYuNDEzIDMzNS44MDEgMTQ1Ljc2NiAzMzkuNjc2IDE0OS4zMjFDMjkzLjQ5NCAxMDguMjggMjIyLjEyMSAxMDUuMDQ3IDE3MS40MTcgMTM4Ljk3OUMxMTguMTI5IDE3NC41MjggOTkuMzk4MSAyNDEuNzQ1IDEyMi42NTEgMzAwLjU2MUMxMzAuNzI1IDMyMC41OTcgMTQyLjk5NyAzMzkuMDE3IDE1My45NzcgMzU3LjQzN0MxNjMuMDIgMzcyLjk0OSAxNzIuMzg2IDM4OC43ODQgMTgxLjQyOCA0MDQuMjk2QzE5NC45OTMgNDI3LjU2NCAyMDguNTU3IDQ1MC44MzEgMjIyLjEyMSA0NzMuNzc2QzIyOC41OCA0ODUuMDg3IDIzNS4zNjIgNDk2LjM5OCAyNDEuODIxIDUwNy4zODVDMjQxLjgyMSA0NTEuMTU1IDI0MS44MjEgMzk0LjYwMSAyNDEuODIxIDMzOC4zNzFDMjQxLjgyMSAzMjQuNzk4IDI0MS44MjEgMzExLjIyNSAyNDEuODIxIDI5Ny4zMjlDMjI5LjU0OSAyOTQuMDk3IDIyMC44MjkgMjgzLjExIDIyMC44MjkgMjY5Ljg2QzIyMC44MjkgMjU0LjAyNSAyMzMuNDI0IDI0MS40MjIgMjQ5LjI0OSAyNDEuNDIyQzI2NS4wNzQgMjQxLjQyMiAyNzcuNjY5IDI1NC4wMjUgMjc3LjY2OSAyNjkuODZDMjc3LjY2OSAyODMuMTEgMjY4LjYyNiAyOTQuMDk3IDI1Ni4zNTQgMjk3LjMyOUMyNTYuMzU0IDMxMC45MDIgMjU2LjM1NCAzMjQuNDc1IDI1Ni4zNTQgMzM4LjM3MUMyNTYuMzU0IDM5NC42MDEgMjU2LjM1NCA0NTEuMTU1IDI1Ni4zNTQgNTA3LjM4NUMyODAuODk5IDQ2NS42OTcgMzA1LjEyIDQyNC4wMDkgMzI5LjY2NSAzODIuNjQ0QzM0Ny4xMDQgMzUyLjkxMyAzNjkuMDY1IDMyMi44NTkgMzc5LjcyMyAyOTAuMjJDMzk2LjUxNiAyMzguODM3IDM3OS43MjMgMTg0Ljg2OSAzMzkuNjc2IDE0OS4zMjFaTTE1Ni4yMzggMjcwLjUwNkMxNDcuNTE5IDIyNC4yOTQgMTU5Ljc5IDE5Mi45NDggMTkzLjM3OCAxNzAuMDAzQzIyNC43MDUgMTQ4LjY3NCAyNTcuNjQ2IDE0OC4wMjggMzAwLjkyMiAxNzMuMjM1QzIyMS40NzUgMTY4LjcxIDE4MS43NTIgMjA4LjEzNiAxNTYuMjM4IDI3MC41MDZaIiBmaWxsPSJibGFjayIvPgo8L3N2Zz4K'
+    );
+}
+
+function wittypen_script()
+{
+    echo <<<EOT
+    <script>
+        function copyApiKey() {
+            var apiKey = document.getElementById('wittypen-api-key').value;
+            navigator.clipboard.writeText(apiKey);
+
+            document.querySelector('#wittypen-container .card #copy-success-message').innerHTML = 'API key copied!';
+
+            setTimeout(() => {
+                document.querySelector('#wittypen-container .card #copy-success-message').innerHTML = '';
+            }, 3000);
+        }
+    </script>
+    EOT;
 }
 
 function wittypen_display_api_key()
 {
+    echo '<script src="https://cdn.tailwindcss.com"></script>';
+
+    wittypen_script();
+
     $api_key = get_option('wittypen_api_key');
-    echo '<h1>Your Wittypen API Key</h1>';
-    echo '<p>' . $api_key . '</p>';
+    $logo_url = plugins_url('assets/wittypen-logo.svg', __FILE__);
+
+    echo <<<EOT
+    <div class="my-8 w-full space-y-8 lg:mx-12 lg:w-1/3 pr-[10px]">
+    <img src="$logo_url" alt="wittypen-logo" class="mx-auto w-1/3" />
+    <div class="space-y-2 rounded-lg border bg-white p-4 shadow-lg">
+        <p class="inline-block font-bold">API Key</p>
+        <div class="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 p-4">
+        <p>$api_key</p>
+        <span class="cursor-pointer hover:opacity-50" onclick="copyApiKey()">
+            <svg class="w-4 fill-gray-500" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 115.77 122.88"><path d="M89.62 13.96v7.73h12.2v.02c3.85.01 7.34 1.57 9.86 4.1 2.5 2.51 4.06 5.98 4.07 9.82h.02v73.3h-.02c-.01 3.84-1.57 7.33-4.1 9.86-2.51 2.5-5.98 4.06-9.82 4.07v.02H40.1v-.02c-3.84-.01-7.34-1.57-9.86-4.1-2.5-2.51-4.06-5.98-4.07-9.82h-.02V92.51h-12.2v-.02c-3.84-.01-7.34-1.57-9.86-4.1-2.5-2.51-4.06-5.98-4.07-9.82H0V13.95h.02c.01-3.85 1.58-7.34 4.1-9.86C6.63 1.59 10.1.03 13.94.02V0H75.67v.02c3.85.01 7.34 1.57 9.86 4.1 2.5 2.51 4.06 5.98 4.07 9.82h.02v.02zm-10.58 7.73v-7.75h.02c0-.91-.39-1.75-1.01-2.37-.61-.61-1.46-1-2.37-1v.02H13.95v-.02c-.91 0-1.75.39-2.37 1.01-.61.61-1 1.46-1 2.37h.02v64.62h-.02c0 .91.39 1.75 1.01 2.37.61.61 1.46 1 2.37 1v-.02h12.2V35.64h.02c.01-3.85 1.58-7.34 4.1-9.86 2.51-2.5 5.98-4.06 9.82-4.07v-.02H79.04zm26.14 87.23V35.63h.02c0-.91-.39-1.75-1.01-2.37-.61-.61-1.46-1-2.37-1v.02H40.09v-.02c-.91 0-1.75.39-2.37 1.01-.61.61-1 1.46-1 2.37h.02v73.3h-.02c0 .91.39 1.75 1.01 2.37.61.61 1.46 1 2.37 1v-.02H101.83v.02c.91 0 1.75-.39 2.37-1.01.61-.61 1-1.46 1-2.37h-.02v-.01z" style="fill-rule:evenodd;clip-rule:evenodd" /></svg
+        ></span>
+        </div>
+        <p class="hidden text-green-600"></p>
+    </div>
+    <div class="space-y-1 rounded-lg border border-yellow-400 bg-yellow-50 p-4 text-yellow-800">
+        <p class="font-bold">Important: Keep this plugin installed and activated</p>
+        <p>Do not deactivate or delete this plugin, otherwise the publishing feature won't work.</p>
+    </div>
+    <a class="inline-block text-gray-500 underline hover:opacity-70" href="https://wittypen.com/contact-us" target="_blank">Contact us for any queries</a>
+    </div>
+    EOT;
 }
 
 function wittypen_authenticate_request($result)

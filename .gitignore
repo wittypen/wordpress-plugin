@@ -1,0 +1,13 @@
+/node_modules
+/vendor
+
+/.idea
+dump.rdb
+nohup.out
+data.ms
+.DS_Store
+
+.env
+
+composer.lock
+yarn.lock
