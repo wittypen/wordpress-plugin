@@ -17,7 +17,7 @@ jobs:
         run: mkdir -p build
 
       - name: Build ZIP
-        run: zip -r build/my-plugin.zip . -x "*.git*"
+        run: zip -r build/wittypen-wordpress-plugin.zip . -x "*.git*"
 
       - name: Create Release
         id: create_release
@@ -33,6 +33,6 @@ jobs:
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: build/my-plugin.zip
-          asset_name: my-plugin.zip
+          asset_path: build/wittypen-wordpress-plugin.zip
+          asset_name: wittypen-wordpress-plugin.zip
           asset_content_type: application/zip
