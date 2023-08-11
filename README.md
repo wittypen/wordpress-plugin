@@ -1,4 +1,4 @@
-# Wittypen Integration WordPress Plugin
+# Wittypen WordPress Plugin
 
 This plugin allows you to connect your WordPress website with Wittypen's content writing marketplace. It generates a unique API key that can be used to authenticate requests from Wittypen to your WordPress website.
 
