@@ -23,6 +23,14 @@ function wittypen_generate_api_key()
     update_option('wittypen_api_key_user_id', get_current_user_id()); // Store the current user ID in the database
 }
 
+add_action('rest_api_init', function () {
+    register_rest_route('wittypen/v1', '/publish', array(
+        'methods' => 'POST',
+        'callback' => 'wittypen_publish_content',
+        'permission_callback' => 'wittypen_authenticate_request'
+    ));
+});
+
 add_action('admin_menu', 'wittypen_create_menu');
 
 function wittypen_create_menu()
@@ -86,23 +94,26 @@ function wittypen_display_api_key()
     EOT;
 }
 
-function wittypen_authenticate_request($result) {
-    // Get the current REST route
-    $route = $_SERVER['REQUEST_URI'];
+function wittypen_publish_content(WP_REST_Request $request) {
+    $content = $request->get_param('content');
+    $title = $request->get_param('title');
+    $status = $request->get_param('status');
 
-    // Check if the route matches plugin's namespace (replace 'wittypen/v1' with your actual namespace)
-    if (strpos($route, 'wittypen/v1') === false) {
-        // This is not a request related to plugin, return the original result
-        return $result;
+    $post_id = wp_insert_post(array(
+        'post_title' => $title,
+        'post_content' => $content,
+        'post_status' => $status,
+    ));
+
+    if ($post_id) {
+        return new WP_REST_Response(array('success' => true, 'post_id' => $post_id), 200);
     }
 
-    if (!empty($result)) {
-        // Another authentication method is being used, return the result
-        return $result;
-    }
+    return new WP_Error('publish_error', 'Failed to publish content', array('status' => 500));
+}
 
-    // Get the Authorization header
-    $authorization_header = isset($_SERVER['HTTP_AUTHORIZATION']) ? $_SERVER['HTTP_AUTHORIZATION'] : '';
+function wittypen_authenticate_request() {
+	$authorization_header = isset($_SERVER['HTTP_AUTHORIZATION']) ? $_SERVER['HTTP_AUTHORIZATION'] : '';
 
     if (empty($authorization_header)) {
         // No Authorization header was provided, return an error
@@ -120,8 +131,5 @@ function wittypen_authenticate_request($result) {
     // The API key is valid, set the current user to the user associated with the API key
     wp_set_current_user(get_option('wittypen_api_key_user_id'));
 
-    // Return null to indicate that authentication was successful
-    return null;
+    return true;
 }
-
-add_filter('rest_authentication_errors', 'wittypen_authenticate_request');
