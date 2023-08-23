@@ -86,8 +86,16 @@ function wittypen_display_api_key()
     EOT;
 }
 
-function wittypen_authenticate_request($result)
-{
+function wittypen_authenticate_request($result) {
+    // Get the current REST route
+    $route = $_SERVER['REQUEST_URI'];
+
+    // Check if the route matches plugin's namespace (replace 'wittypen/v1' with your actual namespace)
+    if (strpos($route, 'wittypen/v1') === false) {
+        // This is not a request related to plugin, return the original result
+        return $result;
+    }
+
     if (!empty($result)) {
         // Another authentication method is being used, return the result
         return $result;
