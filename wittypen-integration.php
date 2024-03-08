@@ -112,16 +112,49 @@ function wittypen_publish_content(WP_REST_Request $request) {
     return new WP_Error('publish_error', 'Failed to publish content', array('status' => 500));
 }
 
+function get_authorization_header() {
+    $headers = null;
+	
+    if (isset($_SERVER['Authorization'])) {
+        $headers = trim($_SERVER["Authorization"]);
+    } else if (isset($_SERVER['HTTP_AUTHORIZATION'])) {
+        $headers = trim($_SERVER["HTTP_AUTHORIZATION"]);
+    } elseif (function_exists('apache_request_headers')) {
+        $requestHeaders = apache_request_headers();
+
+        $requestHeaders = array_combine(
+            array_map('ucwords', array_keys($requestHeaders)),
+            array_values($requestHeaders)
+        );
+
+        if (isset($requestHeaders['Authorization'])) {
+            $headers = trim($requestHeaders['Authorization']);
+        }
+    }
+	
+    return $headers;
+}
+
+function get_bearer_token($headers) {
+    if (! empty($headers)) {
+        if (preg_match('/Bearer\s(\S+)/', $headers, $matches)) {
+            return $matches[1];
+        }
+    }
+	
+    return null;
+}
+
 function wittypen_authenticate_request() {
-	$authorization_header = isset($_SERVER['HTTP_AUTHORIZATION']) ? $_SERVER['HTTP_AUTHORIZATION'] : '';
+	$authorization_header = get_authorization_header();
 
     if (empty($authorization_header)) {
         // No Authorization header was provided, return an error
         return new WP_Error('rest_forbidden', 'You did not provide an API key.', array('status' => 403));
     }
 
-    // Remove "Bearer " from the start of the header
-    $api_key = substr($authorization_header, 7);
+    // Get the API key from the Authorization header
+    $api_key = get_bearer_token($authorization_header);
 
     if ($api_key !== get_option('wittypen_api_key')) {
         // The provided API key does not match the stored API key, return an error
